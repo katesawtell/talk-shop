@@ -9,7 +9,7 @@ chrome.action.onClicked.addListener(async (tab) => {
     await chrome.action.setBadgeText({ tabId: tab.id, text: '' });
     await chrome.scripting.executeScript({
       target: { tabId: tab.id },
-      files: ['details.js', 'form.js', 'panel.js']
+      files: ['details.js', 'categories.js', 'form.js', 'panel.js']
     });
   } catch (error) {
     console.warn('Could not open Depop Voice Draft', error);

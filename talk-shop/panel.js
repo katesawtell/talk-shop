@@ -76,6 +76,34 @@
   let promptVersion = 0;
   let working = false;
   const omitted = new Set();
+
+    const categoryData = globalThis.talkShopCategories;
+  const choiceList = new Intl.ListFormat('en-US', { type: 'disjunction' });
+  let categoryPath = [];
+
+  function categoryOptions() {
+    return categoryData.options(categoryPath.at(-1)?.id);
+  }
+
+  function followUp(key, spoken = false) {
+    if (key !== 'category') return fields[key][1];
+
+    const choices = categoryOptions();
+    if (!choices.length) return fields.category[1];
+
+    const question = [
+      'Which department fits your item?',
+      'Which category?',
+      'Which type?'
+    ][Math.min(categoryPath.length, 2)];
+
+    const labels = choices.map((choice) => choice.label);
+    if (spoken && labels.length > 5) {
+      return `${question} Some options are ${choiceList.format(labels.slice(0, 5))}. See the panel for all choices.`;
+    }
+    return `${question} ${choiceList.format(labels)}.`;
+  }
+
   function sync() {
     const busy = Boolean(recognition);
     get('start').disabled = busy || working;
@@ -88,6 +116,7 @@
   function stop() {
     promptVersion++;
     pending = null;
+    categoryPath = [];
     if (recognition) {
       const active = recognition;
       recognition = null;
@@ -103,8 +132,8 @@
       status('Review your details and description, then choose Fill Depop draft.');
       return;
     }
-    const question = fields[pending][1];
-    status(question + ' Say “skip” to leave it blank.');
+    const question = followUp(pending, true);
+    status(followUp(pending) + ' Say “skip” to leave it blank.');
     if (!window.speechSynthesis || !window.SpeechSynthesisUtterance) {
       listen();
       return;
@@ -132,7 +161,9 @@
     let fault = '';
     recognition = active;
     sync();
-    status(key === 'intro' ? 'Listening for item details…' : fields[key][1] + ' Listening…');
+   status(key === 'intro'
+      ? 'Listening for item details…'
+      : followUp(key) + ' Listening…');
     active.onresult = (event) => {
       transcript = [...event.results].map((result) => result[0].transcript).join(' ').trim();
     };
@@ -153,9 +184,35 @@
           else get(name).value = value;
         }
       } else {
+        
         const value = answer(transcript, key);
-        if (skipped(value)) omitted.add(key);
-        else if (value) get(key).value = value;
+
+        if (skipped(value)) {
+          omitted.add(key);
+          if (key === 'category') categoryPath = [];
+        } else if (key === 'category' && categoryOptions().length) {
+          // Keep a category the seller typed while the mic was open.
+          if (get('category').value.trim()) {
+            categoryPath = [];
+          } else {
+            const choice = categoryData.match(categoryOptions(), value);
+
+            if (!choice) {
+              status(`I heard “${value}”. ${followUp(key)} Choose Answer aloud to retry.`);
+              return;
+            }
+
+            categoryPath.push(choice);
+            if (!categoryData.options(choice.id).length) {
+              get('category').value = categoryPath
+                .map((entry) => entry.formLabel)
+                .join(' > ');
+              categoryPath = [];
+            }
+          }
+        } else if (value) {
+          get(key).value = value;
+        }
       }
       updateDraft();
       next();
