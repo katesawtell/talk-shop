@@ -5,5 +5,11 @@
   "description": "Dictate item details, answer spoken follow-ups, and fill a Depop listing draft.",
   "permissions": ["activeTab", "scripting"],
   "action": {"default_title": "Talk Shop Draft"},
-  "background": {"service_worker": "background.js"}
+  "background": {"service_worker": "background.js"},
+  "web_accessible_resources": [
+  {
+    "resources": ["panel.css"],
+    "matches": ["https://depop.com/*", "https://www.depop.com/*"]
+  }
+]
 }

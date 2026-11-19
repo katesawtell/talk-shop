@@ -10,30 +10,9 @@
   host.id = panelId;
   const ui = host.attachShadow({ mode: 'open' });
   ui.innerHTML = `
-    <style>
-      :host { all: initial; position: fixed; z-index: 2147483647; right: 14px; top: 14px;
-        width: min(390px, calc(100vw - 28px)); color: #25231f; font: 14px/1.45 system-ui, sans-serif; }
-      * { box-sizing: border-box; }
-      section { max-height: calc(100vh - 28px); overflow: auto; background: #faf8f3; padding: 18px;
-        border: 1px solid #bcb5a8; border-radius: 14px; box-shadow: 0 8px 30px #0003; }
-      header, .actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-      header { justify-content: space-between; }
-      h2 { margin: 0; font-size: 20px; }
-      p { margin: 9px 0; }
-      #status { background: #eee8dc; border-radius: 6px; padding: 9px; }
-      #fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
-      label { display: block; font-weight: 600; }
-      input, textarea { display: block; width: 100%; border: 1px solid #a39b8f; border-radius: 5px;
-        background: white; color: #25231f; font: inherit; font-weight: 400; padding: 6px 8px; }
-      textarea { resize: vertical; margin-bottom: 10px; }
-      button { font: inherit; font-weight: 600; cursor: pointer; border: 1px solid #73695b;
-        color: inherit; background: white; border-radius: 6px; padding: 5px 9px; }
-      #start, #fill { background: #25231f; color: white; }
-      button:disabled { opacity: .5; cursor: default; }
-      [hidden] { display: none !important; }
-    </style>
+    <link rel="stylesheet" href="${chrome.runtime.getURL('panel.css')}">
     <section aria-label="Talk Shop Draft">
-      <header><h2>Depop Voice Draft</h2><button id="close" type="button" aria-label="Close">✕</button></header>
+      <header><h2>talk shop</h2><button id="close" type="button" aria-label="Close">✕</button></header>
       <p>Say “black denim jacket, brand Levi’s, size medium, category jackets.” You can also type the details below.</p>
       <p id="status" role="status" aria-live="polite">Ready to draft a listing.</p>
       <div class="actions">
@@ -184,7 +163,7 @@
           else get(name).value = value;
         }
       } else {
-        
+
         const value = answer(transcript, key);
 
         if (skipped(value)) {
