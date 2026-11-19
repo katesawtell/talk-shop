@@ -1,0 +1,9 @@
+{
+  "manifest_version": 3,
+  "name": "Talk Shop",
+  "version": "0.1.0",
+  "description": "Dictate item details, answer spoken follow-ups, and fill a Depop listing draft.",
+  "permissions": ["activeTab", "scripting"],
+  "action": {"default_title": "Talk Shop Draft"},
+  "background": {"service_worker": "background.js"}
+}
